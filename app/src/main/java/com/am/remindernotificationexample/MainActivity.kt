@@ -10,10 +10,8 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import androidx.work.Data
+import androidx.work.*
 import kotlinx.android.synthetic.main.activity_main.*
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -33,33 +31,44 @@ class MainActivity : AppCompatActivity() {
             scheduleNotification(getNotification("30 second delay"), 30000)
         }
 
+
         //we set a tag to be able to cancel all work of this type if needed
-        val workTag = "notificationWork"
+        val workTag = "notificationWorker"
 
         //store DBEventID to pass it to the PendingIntent and open the appropriate event page on notification click
-        val inputData = Data.Builder().putString("my_name", "Abed Murad").build()
+        val inputData = Data.Builder()
+            .putString("notification_title", "This is Title")
+            .putString("notification_content", "This is Content")
+            .build()
         // we then retrieve it inside the NotifyWorker with:
         // final int DBEventID = getInputData().getInt(DBEventIDTag, ERROR_VALUE);
 
-        val notificationWork = OneTimeWorkRequest.Builder(NotifyWorker::class.java)
-            .setInitialDelay(calculateDelay(Date()), TimeUnit.SECONDS)
+        // Create a Constraints object that defines when the task should run
+        val constraints = Constraints.Builder()
+            .setRequiresDeviceIdle(true)
+            .setRequiresCharging(true)
+            .build()
+
+
+        val notificationWorkRequest = OneTimeWorkRequest.Builder(NotifyWorker::class.java)
+            .setInitialDelay(calculateDelay(Date()), TimeUnit.MICROSECONDS)
             .setInputData(inputData)
             .addTag(workTag)
             .build()
 
-        WorkManager.getInstance(this).enqueue(notificationWork)
+        WorkManager.getInstance(this).enqueue(notificationWorkRequest)
     }
 
     private fun calculateDelay(notificationDate: Date): Long {
         val currentTime = System.currentTimeMillis()
-        val diff = notificationDate.time - currentTime
-        val seconds = diff / 1000
+        val diffInMilllis = notificationDate.time - currentTime
+        val seconds = diffInMilllis / 1000
         val minutes = seconds / 60
         val hours = minutes / 60
         val days = hours / 24
 
         Log.d("ttt", "$days days, $hours hours, $minutes minutes, $seconds seconds")
-        return diff
+        return diffInMilllis
     }
 
 
