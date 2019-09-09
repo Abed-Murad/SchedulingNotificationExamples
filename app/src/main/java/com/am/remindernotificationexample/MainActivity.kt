@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
             .setRequiresCharging(true)
             .build()
 
-
         val notificationWorkRequest = OneTimeWorkRequest.Builder(NotifyWorker::class.java)
             .setInitialDelay(calculateDelay(Date()), TimeUnit.MICROSECONDS)
             .setInputData(inputData)

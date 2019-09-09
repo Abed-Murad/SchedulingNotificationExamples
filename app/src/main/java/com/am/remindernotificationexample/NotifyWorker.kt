@@ -1,14 +1,10 @@
 package com.am.remindernotificationexample
-
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
-import androidx.annotation.NonNull
 import androidx.core.app.NotificationCompat
-import androidx.work.ListenableWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 
 class NotifyWorker(var context: Context, params: WorkerParameters) : Worker(context, params) {
 
